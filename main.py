@@ -6,7 +6,7 @@ import asyncio
 
 
 
-TOKEN = 'MTEyMTg0NzgwNTI1MDYzMzczOA.GbpG5S.kLJiI3qqjoOgR5fnHATlZ9S-BYcmwT33lfflpE'
+TOKEN = 'hidden'
 
 intents = discord.Intents.all()
 intents.message_content = True
