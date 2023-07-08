@@ -76,43 +76,51 @@ async def on_command_error(interaction: discord.Interaction, error):
 
 
 @client.tree.command()
-async def clear(interaction: discord.Interaction):
+async def clear(interaction: discord.Interaction, count: int = None):
     """Clears Messages"""
 
     def is_bot(m):
-        return m.author == client.user
+        return m.author == interaction.guild.me
 
-    deleted = await interaction.response.send_message.channel.purge(limit=None, check=is_bot)
-    await interaction.response.send_message.send(f"Deleted {len(deleted)} message(s).", delete_after=5)
+    if count is None:
+        deleted = await interaction.channel.purge(limit=None, check=is_bot)
+    else:
+        deleted = await interaction.channel.purge(limit=count, check=is_bot)
+
+    await interaction.response.send_message(f"Deleted {len(deleted)} message(s).", ephemeral=True, delete_after=5)
 
 
 @client.tree.command()
-async def clearthreads(interaction: discord.Interaction):
+async def clearthreads(ctx: discord.Interaction):
     """Clear Threads"""
 
     def is_bot_thread(t):
-        return t.archived and t.owner == client.user
+        return t.archived and t.owner == ctx.guild.me
 
-    deleted_threads = await interaction.response.send_message.channel.purge(limit=None, check=is_bot_thread,
-                                                                            before=None, after=None)
-    await interaction.response.send_message.send(f"Deleted {len(deleted_threads)} thread(s).", delete_after=5)
+    deleted_threads = 0
+    for thread in ctx.channel.threads:
+        if is_bot_thread(thread):
+            await thread.delete()
+            deleted_threads += 1
+
+    await ctx.response.send_message(f"Deleted {deleted_threads} thread(s).", ephemeral=True, delete_after=5)
 
 
 @client.tree.command()
 async def setimage(interaction: discord.Interaction, url: str):
-    """Use a link to change the image. Make sure your focus is in the center of the image since you can't adjust it."""  #
+    """Use a link to change the image. Make sure your focus is in the center of the image since you can't adjust it."""
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 if response.status == 200:
                     image = await response.read()
-                    await client.user.edit(avatar=image)
-                    await interaction.response.send_message.send("Bot image has been updated successfully.")
+                    bot_user = interaction.client.user
+                    await bot_user.edit(avatar=image)
+                    await interaction.response.send_message("Bot image has been updated successfully.")
                 else:
-                    await interaction.response.send_message.send("Failed to retrieve image from URL.")
+                    await interaction.response.send_message("Failed to retrieve image from URL.")
     except aiohttp.ClientError:
-        await interaction.response.send_message.send("Failed to update bot image.")
-
+        await interaction.response.send_message("Failed to update bot image.")
 
 
 # Sync Code
