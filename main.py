@@ -1,14 +1,14 @@
 from typing import Literal, Optional
 import discord
+import aiohttp
+import asyncio
 from discord.ext import commands
 from discord.ext.commands import errors
 from discord.ext.commands import Greedy, Context
-from discord import Interaction
-from discord import app_commands
-import aiohttp
-import asyncio
+
 
 TOKEN = 'hidden'
+guild = discord.Object(id='hidden')
 
 intents = discord.Intents.all()
 intents.message_content = True
@@ -27,45 +27,43 @@ async def guide(interaction: discord.Interaction):
                                             "deletes bots threads\n"
                                             "/setimage - use link to set image")
 
+@client.command()
+async def alert(ctx, user: discord.Member, count: int):
+    guild_id = ctx.guild.id
 
-@client.tree.command()
-async def ping(interaction: discord.Interaction, user: discord.Member, count: int):
-    """PING MATTHEW!!!"""
     if count <= 0:
-        await interaction.response.send_message("Please provide a positive number of pings.")
+        await ctx.send("Please provide a positive number of pings.")
         return
 
     if not user.mention:
-        await interaction.response.send_message("bruh you forgot the @")
+        await ctx.send("bruh you forgot the @")
         return
 
     try:
-        if isinstance(interaction.response.send_message.channel, discord.Thread):
+        if isinstance(ctx.channel, discord.Thread):
             try:
                 for _ in range(count):
-                    await interaction.response.send_message.send(user.mention)
+                    await ctx.send(user.mention)
             except errors.MemberNotFound:
-                await interaction.response.send_message.send("No user found, bozo")
+                await ctx.send("No user found, bozo")
         else:
             if count > MAX_PINGS:
-                await interaction.response.send_message.send(
+                await ctx.send(
                     f"Only up to {MAX_PINGS} pings. Gets a bit glitchy after :pensive: \nThere is no limit in "
                     f"threads")
                 return
             for i in range(count):
-                await interaction.response.send_message.send(user.mention)
+                await ctx.send(user.mention)
 
                 if i + 1 == MAX_PINGS:
                     # Create a thread after reaching the maximum number of pings
-                    await interaction.response.send_message.send(f"Creating a thread for {user.display_name}...")
-                    thread = await interaction.response.send_message.channel.create_thread(
-                        name=f"Pings for {user.display_name}", private=False)
+                    await ctx.send(f"Creating a thread for {user.display_name}...")
+                    thread = await ctx.channel.create_thread(name=f"Pings for {user.display_name}", private=False)
                     # Schedule thread deletion after a specified duration
                     await asyncio.sleep(THREAD_DURATION * 3600)  # Convert hours to seconds
                     await thread.delete()
     except errors.MemberNotFound:
-        await interaction.response.send_message.send("")
-
+        await ctx.send("")
 
 MAX_PINGS = 15  # Maximum number of pings allowed
 THREAD_DURATION = 2  # Duration in hours before thread deletion
@@ -116,7 +114,7 @@ async def setimage(interaction: discord.Interaction, url: str):
         await interaction.response.send_message.send("Failed to update bot image.")
 
 
-guild = discord.Object(id='hidden')
+
 # Sync Code
 
 
