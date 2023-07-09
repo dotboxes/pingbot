@@ -25,9 +25,12 @@ async def on_ready():
 @client.tree.command()
 async def guide(interaction: discord.Interaction):
     """Guide"""  # Description when viewing / commands
-    await interaction.response.send_message("/ping - pings a user \n/clear - deletes bots messages\n/clearthreads - "
+    try:
+        await interaction.response.send_message("/ping - pings a user \n/clear - deletes bots messages\n/clearthreads - "
                                             "deletes bots threads\n"
                                             "/setimage - use link to set image")
+    except (TypeError, discord.errors.NotFound):
+        pass #ignores notFound error
 
 
 @client.command()
@@ -88,15 +91,16 @@ async def on_command_error(interaction: discord.Interaction, error):
 async def clear(interaction: discord.Interaction, count: int = None):
     """Clears Messages"""
 
-    def is_bot(m):
-        return m.author == interaction.guild.me
+    def is_bot_message(message):
+        return message.author.id == client.user.id
 
-    if count is None:
-        deleted = await interaction.channel.purge(limit=None, check=is_bot)
-    else:
-        deleted = await interaction.channel.purge(limit=count, check=is_bot)
+    await interaction.response.defer()
 
-    await interaction.response.send_message(f"Deleted {len(deleted)} message(s).", ephemeral=True, delete_after=5)
+    deleted = await interaction.channel.purge(limit=count, check=is_bot_message)
+
+    message = await interaction.channel.send(f"Deleted {len(deleted)} message(s).")
+    await asyncio.sleep(5)  # Wait for 5 seconds
+    await message.delete()
 
 
 @client.tree.command()
