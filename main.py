@@ -136,7 +136,6 @@ bot_owner_id = client.owner_id
 
 
 @client.command(aliases=['embedsay'])
-@commands.is_owner()
 async def say(ctx, title: str, description: str, *, color: discord.Color = discord.Color(0xFFFFFF)):
     embed = discord.Embed(title=title, description=description, color=color)
     await ctx.message.delete()
