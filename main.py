@@ -90,17 +90,22 @@ async def on_command_error(interaction: discord.Interaction, error):
 @client.tree.command()
 async def clear(interaction: discord.Interaction, count: int = None):
     """Clears Messages"""
+    if count is None or count < 1:
+        nmb = "you want to clear negative messages?"
+        nmb_cb = f"```python\n{nmb}\n```"
+        await interaction.response.send_message(nmb_cb, ephemeral=True, delete_after=3.5, )
+        return
 
     def is_bot_message(message):
-        return message.author.id == client.user.id
+        return message.author.id == client.user.id and message != interaction.message
 
     await interaction.response.defer()
 
-    deleted = await interaction.channel.purge(limit=count, check=is_bot_message)
+    deleted = await interaction.channel.purge(limit=count + 1, check=is_bot_message)
 
-    message = await interaction.channel.send(f"Deleted {len(deleted)} message(s).")
-    await asyncio.sleep(5)  # Wait for 5 seconds
-    await message.delete()
+    code = f"Deleted {len(deleted) - 1} message(s)."
+    code_block = f"```python\n{code}\n```"
+    await interaction.channel.send(code_block, delete_after=2.5)
 
 
 @client.tree.command()
