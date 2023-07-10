@@ -6,3 +6,5 @@ Auto deletes threads after 2 hours and has the ability to clear messages and thr
 Will continously recieve updates.
 
 Has a setimage feature.
+
+Will be looking to organize code next.
