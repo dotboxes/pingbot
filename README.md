@@ -8,4 +8,4 @@ Will continously recieve updates.
 Has a setimage feature.
 
 Unfortunately, the most important command of this program cannot be listed as a slash command due to Discord's API limit
-on discord.interactions. That's why its not in the cogs file.
+on discord.interactions. That's why its not in the cogs folder.
