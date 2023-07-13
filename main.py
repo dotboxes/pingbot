@@ -1,36 +1,41 @@
 from typing import Literal, Optional, Union
 import discord
-import aiohttp
-import asyncio
-
-from discord import Embed
 from discord.ext import commands
+from colorama import Back, Fore, Style
+import time
+import platform
+
+import asyncio
 from discord.ext.commands import errors
 from discord.ext.commands import Greedy, Context
-
 
 TOKEN = 'hidden'
 guild = discord.Object(id='hidden')
 
-intents = discord.Intents.all()
-intents.message_content = True
-client = commands.Bot(command_prefix='/', intents=intents)
 
+class Client(commands.Bot):
+    def __init__(self):
+        super().__init__(command_prefix=commands.when_mentioned_or('.'), intents=discord.Intents().all())
 
-@client.event
-async def on_ready():
-    print('Bot {0.user}'.format(client) + ' is now online')
+        self.cogslist = ["cogs.ping", "cogs.guide", "cogs.clear", "cogs.setimage", "cogs.clearthreads"]
 
+    async def setup_hook(self):
+        for ext in self.cogslist:
+            await self.load_extension(ext)
 
-@client.tree.command()
-async def guide(interaction: discord.Interaction):
-    """Guide"""  # Description when viewing / commands
-    try:
-        await interaction.response.send_message("/ping - pings a user \n/clear - deletes bots messages\n/clearthreads - "
-                                            "deletes bots threads\n"
-                                            "/setimage - use link to set image")
-    except (TypeError, discord.errors.NotFound):
-        pass #ignores notFound error
+    async def on_ready(self):
+        prfx = (Back.BLACK + Fore.GREEN + time.strftime("%H:%M:%S UTC",
+                                                        time.gmtime()) + Back.RESET + Fore.WHITE + Style.BRIGHT)
+        print(prfx + " Logged in as " + Fore.YELLOW + self.user.name)
+        print(prfx + " Bot ID " + Fore.YELLOW + str(self.user.id))
+        print(prfx + " Discord Version " + Fore.YELLOW + discord.__version__)
+        print(prfx + " Python Version " + Fore.YELLOW + str(platform.python_version()))
+        synced = await self.tree.sync()
+        print(prfx + " Slash CMDs Synced " + Fore.YELLOW + str(len(synced)) + " Commands")
+
+client = Client()
+
+client.run(TOKEN)
 
 
 @client.command()
@@ -81,70 +86,31 @@ async def alert(ctx, target: Union[discord.Role, discord.Member], count: int):
 MAX_PINGS = 15  # Maximum number of pings allowed
 THREAD_DURATION = 2  # Duration in hours before thread deletion
 
+
 @client.event
 async def on_command_error(interaction: discord.Interaction, error):
     if isinstance(error, errors.MemberNotFound):
-        await interaction.response.send_message.send("no user found bozo")
+        await interaction.followup.send("no user found bozo")
 
 
-@client.tree.command()
-async def clear(interaction: discord.Interaction, count: int = None):
-    """Clears Messages"""
-    if count is None or count < 1:
-        nmb = "you want to clear negative messages?"
-        nmb_cb = f"```python\n{nmb}\n```"
-        await interaction.response.send_message(nmb_cb, ephemeral=True, delete_after=3.5, )
-        return
-
+@client.command()
+async def clear_bot_messages(ctx, limit: int = 100):
     def is_bot_message(message):
-        return message.author.id == client.user.id and message != interaction.message
+        return message.author.bot
 
-    await interaction.response.defer()
-
-    deleted = await interaction.channel.purge(limit=count + 1, check=is_bot_message)
-
-    code = f"Deleted {len(deleted) - 1} message(s)."
-    code_block = f"```python\n{code}\n```"
-    await interaction.channel.send(code_block, delete_after=2.5)
+    deleted = await ctx.channel.purge(limit=limit + 1,
+                                      check=is_bot_message)  # Add 1 to include the command message itself
+    await ctx.send(f'Deleted {len(deleted)} bot message(s).')  # Subtract 1 to exclude the command message
 
 
-@client.tree.command()
-async def clearthreads(ctx: discord.Interaction):
-    """Clear Threads"""
 
-    def is_bot_thread(t):
-        return t.archived and t.owner == ctx.guild.me
-
-    deleted_threads = 0
-    for thread in ctx.channel.threads:
-        if is_bot_thread(thread):
-            await thread.delete()
-            deleted_threads += 1
-
-    await ctx.response.send_message(f"Deleted {deleted_threads} thread(s).", ephemeral=True, delete_after=5)
-
-
-@client.tree.command()
-async def setimage(interaction: discord.Interaction, url: str):
-    """Use a link to change the image. Make sure your focus is in the center of the image since you can't adjust it."""
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                if response.status == 200:
-                    image = await response.read()
-                    bot_user = interaction.client.user
-                    await bot_user.edit(avatar=image)
-                    await interaction.response.send_message("Bot image has been updated successfully.")
-                else:
-                    await interaction.response.send_message("Failed to retrieve image from URL.")
-    except aiohttp.ClientError:
-        await interaction.response.send_message("Failed to update bot image.")
 
 
 bot_owner_id = client.owner_id
 
 
 @client.command(aliases=['embedsay'])
+@commands.is_owner()
 async def say(ctx, title: str, description: str, *, color: discord.Color = discord.Color(0xFFFFFF)):
     embed = discord.Embed(title=title, description=description, color=color)
     await ctx.message.delete()
@@ -185,6 +151,3 @@ async def sync(
             ret += 1
 
     await ctx.send(f"Synced the tree to {ret}/{len(guilds)}.")
-
-
-client.run(TOKEN)
