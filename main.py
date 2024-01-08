@@ -12,8 +12,8 @@ from discord.ext.commands import Greedy, Context
 from keep_alive import keep_alive
 keep_alive()
 
-TOKEN = os.environ.get('token')
-guild = discord.Object(id='hidden')
+TOKEN = os.environ.get('TOKEN')
+guild = discord.Object(id='guild')
 
 
 class Client(commands.Bot):
