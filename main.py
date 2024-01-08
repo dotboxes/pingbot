@@ -13,8 +13,8 @@ from discord.ext.commands import errors
 from discord.ext.commands import Greedy, Context
 
 
-DISCORD_TOKEN = os.environ['TOKEN']
-GUILD_TOKEN = os.environ['GUILD_ID']
+TOKEN = os.environ.get('TOKEN')
+guild = discord.Object(id='guild')
 
 intents = discord.Intents.all()
 intents.message_content = True
@@ -191,7 +191,5 @@ async def sync(
     await ctx.send(f"Synced the tree to {ret}/{len(guilds)}.")
 
 
-client.run(DISCORD_TOKEN)
+client.run(TOKEN)
 
-my_secret = os.environ['DISCORD_TOKEN']
-my_secret = os.environ['GUILD_ID']
