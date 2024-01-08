@@ -12,7 +12,7 @@ from discord.ext.commands import Greedy, Context
 from keep_alive import keep_alive
 keep_alive()
 
-TOKEN = Bot(token=os.environ.get('token')
+TOKEN = Bot(token=os.environ.get('token'))
 guild = discord.Object(id='hidden')
 
 
