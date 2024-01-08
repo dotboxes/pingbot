@@ -8,6 +8,8 @@ import platform
 import asyncio
 from discord.ext.commands import errors
 from discord.ext.commands import Greedy, Context
+from keep_alive import keep_alive
+keep_alive()
 
 TOKEN = 'hidden'
 guild = discord.Object(id='hidden')
