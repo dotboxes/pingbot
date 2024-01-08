@@ -1,4 +1,2 @@
-aiogram==2.23.1
-flask
-discord.py==1.7.3
+discord.py>=1.7.3,<2.0.0
 colorama==0.4.4
