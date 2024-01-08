@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands
 from colorama import Back, Fore, Style
 import time
+import os
 import platform
 
 import asyncio
@@ -11,7 +12,7 @@ from discord.ext.commands import Greedy, Context
 from keep_alive import keep_alive
 keep_alive()
 
-TOKEN = 'hidden'
+TOKEN = Bot(token=os.environ.get('token')
 guild = discord.Object(id='hidden')
 
 
