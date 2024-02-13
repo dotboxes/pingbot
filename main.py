@@ -14,10 +14,7 @@ from discord.ext.commands import Greedy, Context
 
 
 TOKEN = os.environ.get('TOKEN')
-async def guild_fetch():
-    guild_id = 123
-    guild = await client.fetch_guild(guild_id)
-    print(guild.name)
+
 
 intents = discord.Intents.all()
 intents.messages = True
@@ -26,6 +23,9 @@ client = commands.Bot(command_prefix='/', intents=intents)
 
 @client.event
 async def on_ready():
+    guild_id = os.environ.get('GUILD')
+    guild = await client.fetch_guild(guild_id)
+    print('Bot {0.user}'.format(client) + "is now in" + guild.name)
     print('Bot {0.user}'.format(client) + ' is now online')
 
 
