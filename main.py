@@ -21,6 +21,7 @@ client = commands.Bot(command_prefix='/', intents=intents)
 @client.event
 async def on_ready():
     print('Bot {0.user}'.format(client) + ' is now online')
+    client.run(TOKEN)
 
 @client.event
 async def guild_fetch():
@@ -193,5 +194,5 @@ async def sync(
     await ctx.send(f"Synced the tree to {ret}/{len(guilds)}.")
 
 
-client.run(TOKEN)
+
 
