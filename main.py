@@ -20,7 +20,7 @@ async def guild_fetch():
     print(guild.name)
 
 intents = discord.Intents.all()
-intents.message_content = True
+intents.messages = True
 client = commands.Bot(command_prefix='/', intents=intents)
 
 
