@@ -14,7 +14,7 @@ from discord.ext.commands import Greedy, Context
 
 
 TOKEN = os.environ.get('TOKEN')
-guild = discord.Object(id='guild')
+guild = await client.fetch_guild(guild_id)
 
 intents = discord.Intents.all()
 intents.message_content = True
