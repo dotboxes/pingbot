@@ -5,8 +5,6 @@ import discord
 import aiohttp
 import asyncio
 import os
-
-
 from discord import Embed
 from discord.ext import commands
 from discord.ext.commands import errors
@@ -14,7 +12,11 @@ from discord.ext.commands import Greedy, Context
 
 
 TOKEN = os.environ.get('TOKEN')
-
+@client.event
+async def guild_fetch():
+    GUILD_ID = 0
+    guild = await client.fetch_guild(GUILD_ID)
+    print(guild.name)
 
 intents = discord.Intents.all()
 intents.messages = True
@@ -23,12 +25,8 @@ client = commands.Bot(command_prefix='/', intents=intents)
 
 @client.event
 async def on_ready():
-    guild_id = os.environ.get('GUILD_ID')
-    guild = await client.fetch_guild(guild_id)
-    print('Bot {0.user}'.format(client) + "is now in" + guild.name)
     print('Bot {0.user}'.format(client) + ' is now online')
-
-
+ 
 @client.tree.command()
 async def guide(interaction: discord.Interaction):
     """Guide"""  # Description when viewing / commands
