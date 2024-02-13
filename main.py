@@ -23,7 +23,7 @@ client = commands.Bot(command_prefix='/', intents=intents)
 
 @client.event
 async def on_ready():
-    guild_id = os.environ.get('GUILD')
+    guild_id = os.environ.get('GUILD_ID')
     guild = await client.fetch_guild(guild_id)
     print('Bot {0.user}'.format(client) + "is now in" + guild.name)
     print('Bot {0.user}'.format(client) + ' is now online')
